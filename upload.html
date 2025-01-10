@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Upload Images</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+    }
+
+    .upload-form {
+      border: 2px dashed #ccc;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .file-preview {
+      margin: 20px 0;
+      text-align: left;
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      margin: 10px 0;
+      padding: 10px;
+      background: #f5f5f5;
+      border-radius: 4px;
+    }
+
+    .file-item img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      margin-right: 15px;
+      border-radius: 4px;
+    }
+
+    .file-details {
+      flex-grow: 1;
+    }
+
+    .file-item input[type="text"] {
+      padding: 5px;
+      margin: 0 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      width: 200px;
+    }
+
+    .original-name {
+      color: #666;
+      font-size: 0.9em;
+      margin-top: 4px;
+    }
+
+    .success-message {
+      color: green;
+      display: none;
+      margin-top: 10px;
+    }
+
+    .upload-list {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Upload Images</h1>
+  <div class="upload-form">
+    <form id="uploadForm" enctype="multipart/form-data">
+      <input type="file" id="imageInput" name="images" multiple accept="image/*">
+      <div id="filePreview" class="file-preview"></div>
+      <button type="submit">Upload Images</button>
+    </form>
+    <div id="successMessage" class="success-message">Upload successful!</div>
+  </div>
+  <div class="upload-list">
+    <h2>Recently Uploaded:</h2>
+    <ul id="fileList"></ul>
+  </div>
+
+  <script>
+    // Handle file selection and preview
+    document.getElementById('imageInput').onchange = function () {
+      const preview = document.getElementById('filePreview');
+      preview.innerHTML = '';
+
+      Array.from(this.files).forEach((file, index) => {
+        const fileItem = document.createElement('div');
+        fileItem.className = 'file-item';
+
+        // Create image preview
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+
+        // Create file details div
+        const details = document.createElement('div');
+        details.className = 'file-details';
+
+        // Create rename input
+        const nameInput = document.createElement('input');
+        nameInput.type = 'text';
+        nameInput.value = file.name.split('.')[0]; // Default to original filename without extension
+        nameInput.dataset.originalExtension = '.' + file.name.split('.').pop();
+        nameInput.placeholder = 'Enter new filename';
+
+        // Update original name display when input changes
+        nameInput.addEventListener('input', function () {
+          const newFileName = this.value.trim() + this.dataset.originalExtension;
+          originalName.textContent = `Will be saved as: ${newFileName}`;
+          if (this.value.trim() === '') {
+            originalName.textContent = `Original: ${file.name}`;
+          }
+        });
+
+        // Show original filename
+        const originalName = document.createElement('div');
+        originalName.className = 'original-name';
+        originalName.textContent = `Original: ${file.name}`;
+
+        details.appendChild(nameInput);
+        details.appendChild(originalName);
+
+        fileItem.appendChild(img);
+        fileItem.appendChild(details);
+        preview.appendChild(fileItem);
+      });
+    };
+
+    document.getElementById('uploadForm').onsubmit = async (e) => {
+      e.preventDefault();
+      const formData = new FormData();
+      const fileInputs = document.querySelectorAll('.file-item input[type="text"]');
+      const files = document.getElementById('imageInput').files;
+
+      // Create a map of original files to their new names
+      const fileMap = new Map();
+      Array.from(files).forEach((file, index) => {
+        const newName = fileInputs[index].value.trim() + fileInputs[index].dataset.originalExtension;
+        const renamedFile = new File([file], newName, {type: file.type});
+        formData.append('images', renamedFile);
+        formData.append('names[]', newName);
+        fileMap.set(file, newName);
+      });
+
+      try {
+        const response = await fetch('/upload', {
+          method: 'POST',
+          body: formData
+        });
+        const result = await response.json();
+
+        if (result.success) {
+          const successMsg = document.getElementById('successMessage');
+          successMsg.style.display = 'block';
+          setTimeout(() => {
+            successMsg.style.display = 'none';
+          }, 3000);
+
+          // Clear the input and preview
+          document.getElementById('uploadForm').reset();
+          document.getElementById('filePreview').innerHTML = '';
+
+          // Refresh the file list
+          loadRecentFiles();
+        }
+      } catch (error) {
+        console.error('Upload failed:', error);
+        alert('Upload failed. Please try again.');
+      }
+    };
+
+    async function loadRecentFiles() {
+      try {
+        const response = await fetch('/list-images');
+        const images = await response.json();
+        const fileList = document.getElementById('fileList');
+        fileList.innerHTML = '';
+
+        images.forEach(image => {
+          const li = document.createElement('li');
+          li.textContent = image.path;
+          fileList.appendChild(li);
+        });
+      } catch (error) {
+        console.error('Error loading file list:', error);
+      }
+    }
+
+    // Load the file list when the page loads
+    loadRecentFiles();
+  </script>
+</body>
+
+</html>
