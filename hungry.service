@@ -1,0 +1,11 @@
+[Unit]
+Description=Hungry
+After=network.target
+
+[Service]
+WorkingDirectory=<DIRECTORY where Hungry is located>
+ExecStart=/usr/bin/node <DIRECTORY where Hungry is located>/server.js
+Restart=on-failure
+RestartSec=5s
+[Install]
+WantedBy=default.target
