@@ -22,6 +22,6 @@
 7. Webapp should be accesible from either <http://localhost:3101> or http://<internal IP>:3101
 8. Optional on linux you can use systemd to make the webapp run on startup using hungry.service
 
-**This should be installed as a user service @ ~/.config/systemd/user not a root service
+**This should be installed as a [user](https://wiki.archlinux.org/title/Systemd/User) service @ ~/.config/systemd/user not a root service
 It will start when the user logs in. If you prefer to start the service at boot modify so the
 service does not run as root**

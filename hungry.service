@@ -5,6 +5,9 @@ After=network.target
 [Service]
 WorkingDirectory=<DIRECTORY where Hungry is located>
 ExecStart=/usr/bin/node <DIRECTORY where Hungry is located>/server.js
+# If using this at system start it /etc/systemd/../..
+# Make sure to set a non-privilleged user
+# User=<your user or a limited web user>
 Restart=on-failure
 RestartSec=5s
 [Install]
