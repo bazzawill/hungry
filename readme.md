@@ -8,8 +8,8 @@
 
 ### Installed by npm (node)
 
-express
-multer
+- express
+- multer
 
 ## Instructions
 
