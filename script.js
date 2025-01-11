@@ -26,9 +26,11 @@ async function loadImages() {
 
       const label = document.createElement("div");
       label.className = "product-label";
+      label.style.whiteSpace = "pre-line"; // This will preserve the newlines
       // Get filename without extension and replace hyphens/underscores with spaces
       const imageName = image.path.split("/").pop().split(".")[0]
-        .replace(/[-_]/g, " ")
+        .replace(/-/g, "\n")
+        .replace(/_/g, " ")
         .replace(/\b\w/g, (c) => c.toUpperCase()); // Capitalize first letter of each word
       label.textContent = imageName;
 
