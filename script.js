@@ -56,6 +56,7 @@ async function loadImages() {
   }
 }
 
+// This function is called by index.html when the submit button is pressed
 function _showSelection() {
   const selectedProducts = document.querySelectorAll(".product.selected");
   if (selectedProducts.length > 0) {

@@ -1,67 +1,72 @@
-const express = require('express');
-const path = require('path');
-const fs = require('fs').promises;
-const multer = require('multer');
+import express from "express";
+import path from "node:path";
+import { promises as fs } from "node:fs";
+import multer from "multer";
+import { fileURLToPath } from "node:url";
+
+// Get current directory name in ES module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const app = express();
 
 // Supported image extensions
-const supportedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+const supportedExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp"];
 
 // Configure multer for file upload
 const storage = multer.diskStorage({
-  destination: async function(req, file, cb) {
+  destination: async function (req, file, cb) {
     try {
       // Create img directory if it doesn't exist
-      await fs.mkdir('img', { recursive: true });
-      cb(null, 'img/');
+      await fs.mkdir("img", { recursive: true });
+      cb(null, "img/");
     } catch (error) {
       cb(error, null);
     }
   },
-  filename: function(req, file, cb) {
+  filename: function (req, file, cb) {
     // Temporarily use original filename - we'll rename it later if needed
     cb(null, file.originalname);
-  }
-
+  },
 });
 
 const upload = multer({
   storage: storage,
-  fileFilter: function(req, file, cb) {
+  fileFilter: function (req, file, cb) {
     const ext = path.extname(file.originalname).toLowerCase();
     if (supportedExtensions.includes(ext)) {
       cb(null, true);
     } else {
-      cb(new Error('Only image files are allowed!'));
+      cb(new Error("Only image files are allowed!"));
     }
-  }
-
+  },
 });
 
 // Serve static files from the current directory
-app.use(express.static('.'));
-
+app.use(express.static("."));
 
 // Handle file uploads
-app.post('/upload', upload.array('images'), async (req, res) => {
+app.post("/upload", upload.array("images"), async (req, res) => {
   if (!req.files || req.files.length === 0) {
-    return res.status(400).json({ success: false, message: 'No files uploaded.' });
+    return res.status(400).json({
+      success: false,
+      message: "No files uploaded.",
+    });
   }
 
-  const newNames = req.body['names[]'] || [];
+  const newNames = req.body["names[]"] || [];
   const uploadedFiles = [];
 
   for (let i = 0; i < req.files.length; i++) {
     const file = req.files[i];
     if (newNames[i]) {
-      const oldPath = path.join('img', file.filename);
-      const newPath = path.join('img', newNames[i]);
+      const oldPath = path.join("img", file.filename);
+      const newPath = path.join("img", newNames[i]);
 
       try {
         await fs.rename(oldPath, newPath);
         uploadedFiles.push(newNames[i]);
       } catch (error) {
-        console.error('Error renaming file:', error);
+        console.error("Error renaming file:", error);
         uploadedFiles.push(file.filename);
       }
     } else {
@@ -73,12 +78,12 @@ app.post('/upload', upload.array('images'), async (req, res) => {
 });
 
 // List images endpoint
-app.get('/list-images', async (req, res) => {
+app.get("/list-images", async (req, res) => {
   try {
-    let images = [];
+    const images = [];
 
     // Check web root
-    const rootFiles = await fs.readdir('.');
+    const rootFiles = await fs.readdir(".");
     for (const file of rootFiles) {
       const ext = path.extname(file).toLowerCase();
       if (supportedExtensions.includes(ext)) {
@@ -86,25 +91,23 @@ app.get('/list-images', async (req, res) => {
       }
     }
 
-
     // Check img directory if it exists
     try {
-      const imgFiles = await fs.readdir('img');
+      const imgFiles = await fs.readdir("img");
       for (const file of imgFiles) {
         const ext = path.extname(file).toLowerCase();
         if (supportedExtensions.includes(ext)) {
           images.push({ path: `img/${file}` });
         }
       }
-    } catch (err) {
+    } catch (_err) {
       // img directory doesn't exist, just continue
     }
 
-
     res.json(images);
   } catch (error) {
-    console.error('Error reading directories:', error);
-    res.status(500).json({ error: 'Failed to list images' });
+    console.error("Error reading directories:", error);
+    res.status(500).json({ error: "Failed to list images" });
   }
 });
 
