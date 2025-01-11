@@ -63,11 +63,13 @@ function _showSelection() {
   const selectedProducts = document.querySelectorAll(".product.selected");
   if (selectedProducts.length > 0) {
     const selectedNames = Array.from(selectedProducts).map((product) => {
-      return product.querySelector(".product-label").textContent;
+      const labelText = product.querySelector(".product-label").textContent;
+      // Replace newlines to match the display format
+      return labelText.replace(/\n/g, "");
     });
 
     if (selectedNames.length === 1) {
-      alert("You selected: " + selectedNames[0]);
+      alert("You selected:\n" + selectedNames[0]);
     } else {
       alert("You selected:\n" + selectedNames.join("\n"));
     }
