@@ -32,30 +32,37 @@ def index():
 
 @app.route("/api/data")
 def get_data():
-    # Calculate date range: 1 week past, current week, 2 weeks future
+    # Get offset from URL (default to 0)
+    offset = int(request.args.get("offset", 0))
+
     today = datetime.now()
-    # start_of_week = today - timedelta(days=today.weekday())
     days_since_sunday = (today.weekday() + 1) % 7
 
-    # Start of "this" week (the most recent Sunday)
+    # Calculate the base start (Sunday of "this" week)
+    # Then apply the user's offset (in weeks)
     start_of_this_week = today - timedelta(days=days_since_sunday)
-    # Start of the display range (1 week before this week)
-    start_date = start_of_this_week - timedelta(weeks=1)
-    # start_date = start_of_week - timedelta(weeks=1)
+    base_start = start_of_this_week + timedelta(weeks=offset)
+
+    # Range: 1 week before the base_start, plus 3 following weeks
+    start_date = base_start - timedelta(weeks=1)
 
     days = []
     counts = {"Tom": 0, "Charlie": 0}
 
-    for i in range(28):  # 4 weeks total
+    for i in range(28):
         current_date = start_date + timedelta(days=i)
         ds = current_date.strftime("%Y-%m-%d")
 
-        # Check DB for override, else use pattern
         record = Assignment.query.filter_by(date_str=ds).first()
         name = record.name if record else get_default_name(current_date)
 
+        # Change this line inside the for loop in get_data():
         days.append(
-            {"date": ds, "name": name, "display": current_date.strftime("%a %d %b")}
+            {
+                "date": ds,
+                "name": name,
+                "display": current_date.strftime("%d %b"),  # Result: "17 Feb"
+            }
         )
         counts[name] += 1
 
