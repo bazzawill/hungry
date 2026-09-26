@@ -1,0 +1,31 @@
+{
+  "maccas": [
+    "img/Cheeseburger.png",
+    "img/Chicken-McNuggets.png",
+    "img/Hamburger.png",
+    "img/Maccas_fries.png"
+  ],
+  "Charlie": [
+    "img/hot_dog.webp",
+    "img/gravy_fries.jpeg",
+    "img/Maccas_fries.png",
+    "img/Cheeseburger.png",
+    "img/Cheese n crackers.png",
+    "img/taco.jpg",
+    "img/Schnity.jpg",
+    "img/dorittos - Nacho Cheese.webp",
+    "img/KFC.png",
+    "img/Salami.jpg",
+    "img/Pizza.jpg",
+    "img/Sausage.jpg",
+    "img/Toast.jpg",
+    "img/Subway.png",
+    "img/pancake.jpeg",
+    "img/images_82.jpeg",
+    "img/images_72.jpeg"
+  ],
+  "breakfast": [
+    "img/Toast.jpg",
+    "img/Crunchy Nut Corn Flakes.jpg"
+  ]
+}

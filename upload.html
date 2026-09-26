@@ -74,7 +74,10 @@ designed as an internal network webapp -->
 </head>
 
 <body>
-  <h1>Upload Images</h1>
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h1 style="margin: 0;">Upload Images</h1>
+    <button onclick="window.location.href='index.html'" style="background-color: #666; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer;">← Back to Food Selection</button>
+  </div>
   <div class="upload-form">
     <form id="uploadForm" enctype="multipart/form-data">
       <input type="file" id="imageInput" name="images" multiple accept="image/*">

@@ -79,6 +79,217 @@ button:hover {
     background-color: #45a049;
 }
 
+/* Submit */
+.submit-section {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.submit-section button {
+    margin: 30px auto 10px auto;
+    padding: 18px 40px;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.selection-status {
+    min-height: 24px;
+    color: #2e7d32;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.selection-status.error {
+    color: #c62828;
+}
+
+/* Subset controls */
+.subset-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0 30px 0;
+    padding: 20px;
+    background: #f8f8f8;
+    border-radius: 10px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.subset-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.subset-selector label {
+    font-weight: bold;
+    color: #333;
+}
+
+.subset-selector select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background: white;
+    min-width: 200px;
+}
+
+.subset-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.subset-actions button {
+    margin: 0;
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 30px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    position: absolute;
+    right: 20px;
+    top: 15px;
+}
+
+.close:hover {
+    color: #000;
+}
+
+.modal h2 {
+    margin-top: 0;
+    color: #333;
+}
+
+.modal input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0 20px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.images-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 15px;
+    max-height: 300px;
+    overflow-y: auto;
+    margin: 20px 0;
+    border: 1px solid #eee;
+    padding: 15px;
+    border-radius: 5px;
+}
+
+.image-item {
+    text-align: center;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+}
+
+.image-item:hover {
+    background-color: #f0f0f0;
+}
+
+.image-item.selected {
+    background-color: #e8f5e9;
+    border: 2px solid #4CAF50;
+    padding: 8px;
+}
+
+.image-item img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 5px;
+    margin-bottom: 5px;
+}
+
+.image-item .image-name {
+    font-size: 12px;
+    color: #666;
+    word-break: break-word;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.modal-buttons button {
+    margin: 0;
+}
+
+/* Subset management */
+.subset-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border: 1px solid #eee;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.subset-info {
+    flex-grow: 1;
+}
+
+.subset-name {
+    font-weight: bold;
+    color: #333;
+}
+
+.subset-count {
+    font-size: 14px;
+    color: #666;
+}
+
+.subset-actions-inline {
+    display: flex;
+    gap: 10px;
+}
+
+.subset-actions-inline button {
+    margin: 0;
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
 /* Responsive design */
 @media (min-width: 1200px) {
     .product-container {
@@ -100,5 +311,29 @@ button:hover {
     
     .product {
         padding: 15px;
+    }
+
+    .subset-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .subset-selector {
+        justify-content: space-between;
+    }
+
+    .subset-selector select {
+        min-width: 150px;
+    }
+
+    .modal-content {
+        width: 95%;
+        margin: 10px auto;
+        padding: 20px;
+    }
+
+    .images-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 10px;
     }
 }

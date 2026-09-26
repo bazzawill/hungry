@@ -12,6 +12,9 @@ const app = express();
 // Supported image extensions
 const supportedExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp"];
 
+// Subsets file path
+const SUBSETS_FILE = "subsets.json";
+
 // Configure multer for file upload
 const storage = multer.diskStorage({
   destination: async function (req, file, cb) {
@@ -43,6 +46,9 @@ const upload = multer({
 
 // Serve static files from the current directory
 app.use(express.static("."));
+
+// Parse JSON bodies
+app.use(express.json());
 
 // Handle file uploads
 app.post("/upload", upload.array("images"), async (req, res) => {
@@ -77,17 +83,33 @@ app.post("/upload", upload.array("images"), async (req, res) => {
   res.json({ success: true, files: uploadedFiles });
 });
 
+// Helper function to load subsets
+async function loadSubsets() {
+  try {
+    const data = await fs.readFile(SUBSETS_FILE, "utf8");
+    return JSON.parse(data);
+  } catch (error) {
+    return {}; // Return empty object if file doesn't exist
+  }
+}
+
+// Helper function to save subsets
+async function saveSubsets(subsets) {
+  await fs.writeFile(SUBSETS_FILE, JSON.stringify(subsets, null, 2));
+}
+
 // List images endpoint
 app.get("/list-images", async (req, res) => {
   try {
-    const images = [];
+    const subsetName = req.query.subset;
+    const allImages = [];
 
     // Check web root
     const rootFiles = await fs.readdir(".");
     for (const file of rootFiles) {
       const ext = path.extname(file).toLowerCase();
       if (supportedExtensions.includes(ext)) {
-        images.push({ path: file });
+        allImages.push({ path: file });
       }
     }
 
@@ -97,17 +119,79 @@ app.get("/list-images", async (req, res) => {
       for (const file of imgFiles) {
         const ext = path.extname(file).toLowerCase();
         if (supportedExtensions.includes(ext)) {
-          images.push({ path: `img/${file}` });
+          allImages.push({ path: `img/${file}` });
         }
       }
     } catch (_err) {
       // img directory doesn't exist, just continue
     }
 
-    res.json(images);
+    // Filter by subset if specified
+    if (subsetName) {
+      const subsets = await loadSubsets();
+      if (subsets[subsetName]) {
+        const filteredImages = allImages.filter((img) =>
+          subsets[subsetName].includes(img.path)
+        );
+        return res.json(filteredImages);
+      }
+    }
+
+    res.json(allImages);
   } catch (error) {
     console.error("Error reading directories:", error);
     res.status(500).json({ error: "Failed to list images" });
+  }
+});
+
+// Get all subsets
+app.get("/subsets", async (req, res) => {
+  try {
+    const subsets = await loadSubsets();
+    res.json(subsets);
+  } catch (error) {
+    console.error("Error loading subsets:", error);
+    res.status(500).json({ error: "Failed to load subsets" });
+  }
+});
+
+// Create or update a subset
+app.post("/subsets", async (req, res) => {
+  try {
+    const { name, images } = req.body;
+    if (!name || !Array.isArray(images)) {
+      return res.status(400).json({
+        error: "Name and images array are required",
+      });
+    }
+
+    const subsets = await loadSubsets();
+    subsets[name] = images;
+    await saveSubsets(subsets);
+
+    res.json({ success: true, message: "Subset saved successfully" });
+  } catch (error) {
+    console.error("Error saving subset:", error);
+    res.status(500).json({ error: "Failed to save subset" });
+  }
+});
+
+// Delete a subset
+app.delete("/subsets/:name", async (req, res) => {
+  try {
+    const { name } = req.params;
+    const subsets = await loadSubsets();
+
+    if (subsets[name]) {
+      delete subsets[name];
+      await saveSubsets(subsets);
+      res.json({ success: true, message: "Subset deleted successfully" });
+    } else {
+      res.status(404).json({ error: "Subset not found" });
+    }
+  } catch (error) {
+    console.error("Error deleting subset:", error);
+    res.status(500).json({ error: "Failed to delete subset" });
   }
 });
 

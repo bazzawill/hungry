@@ -11,16 +11,52 @@
 
   <h1>What do you want to EAT</h1>
 
-  <!-- <div class="controls"> -->
-  <!--   <input type="text" id="imageDirectory" placeholder="Image directory (optional)"> -->
-  <!--   <button onclick="loadImages()">Load Images</button> -->
-  <!-- </div> -->
+  <div class="subset-controls">
+    <div class="subset-selector">
+      <label for="subsetSelect">Food Collection:</label>
+      <select id="subsetSelect" onchange="loadImages()">
+        <option value="">All Foods</option>
+      </select>
+    </div>
+    <div class="subset-actions">
+      <button onclick="showCreateSubsetModal()">Create Collection</button>
+      <button onclick="showManageSubsetsModal()">Manage Collections</button>
+      <button onclick="window.open('upload.html', '_blank')">Upload New Foods</button>
+    </div>
+  </div>
 
   <div class="product-container" id="productContainer">
     <!-- Products will be loaded dynamically -->
   </div>
 
-  <button onclick="_showSelection()">Submit</button>
+  <div class="submit-section">
+    <button id="submitButton" onclick="_showSelection()">Copy My Order</button>
+    <div id="selectionStatus" class="selection-status" role="status" aria-live="polite"></div>
+  </div>
+
+  <!-- Modal for creating subsets -->
+  <div id="createSubsetModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('createSubsetModal')">&times;</span>
+      <h2>Create Food Collection</h2>
+      <input type="text" id="newSubsetName" placeholder="Collection name (e.g., Quick Meals, Favorites)">
+      <div id="allImagesGrid" class="images-grid"></div>
+      <div class="modal-buttons">
+        <button onclick="saveNewSubset()">Save Collection</button>
+        <button onclick="closeModal('createSubsetModal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for managing subsets -->
+  <div id="manageSubsetsModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('manageSubsetsModal')">&times;</span>
+      <h2>Manage Food Collections</h2>
+      <div id="subsetsList"></div>
+      <button onclick="closeModal('manageSubsetsModal')">Close</button>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>
