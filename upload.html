@@ -92,6 +92,20 @@ designed as an internal network webapp -->
   </div>
 
   <script>
+    // Work out the name a file will be saved as, from what was typed in the box
+    function buildFileName(nameInput, file) {
+      const typed = nameInput.value.trim();
+      if (!typed) {
+        return file.name;
+      }
+      const ext = nameInput.dataset.originalExtension;
+      // Don't add a second extension if it was typed in
+      if (ext && typed.toLowerCase().endsWith(ext.toLowerCase())) {
+        return typed;
+      }
+      return typed + ext;
+    }
+
     // Handle file selection and preview
     document.getElementById('imageInput').onchange = function () {
       const preview = document.getElementById('filePreview');
@@ -116,19 +130,19 @@ designed as an internal network webapp -->
         nameInput.dataset.originalExtension = '.' + file.name.split('.').pop();
         nameInput.placeholder = 'Enter new filename';
 
-        // Update original name display when input changes
-        nameInput.addEventListener('input', function () {
-          const newFileName = this.value.trim() + this.dataset.originalExtension;
-          originalName.textContent = `Will be saved as: ${newFileName}`;
-          if (this.value.trim() === '') {
-            originalName.textContent = `Original: ${file.name}`;
-          }
-        });
-
         // Show original filename
         const originalName = document.createElement('div');
         originalName.className = 'original-name';
         originalName.textContent = `Original: ${file.name}`;
+
+        // Update the saved name display when the input changes
+        nameInput.addEventListener('input', function () {
+          if (this.value.trim() === '') {
+            originalName.textContent = `Original: ${file.name}`;
+          } else {
+            originalName.textContent = `Will be saved as: ${buildFileName(this, file)}`;
+          }
+        });
 
         details.appendChild(nameInput);
         details.appendChild(originalName);
@@ -145,15 +159,17 @@ designed as an internal network webapp -->
       const fileInputs = document.querySelectorAll('.file-item input[type="text"]');
       const files = document.getElementById('imageInput').files;
 
-      // Create a map of original files to their new names
-      const fileMap = new Map();
+      // Collect the new names in the same order as the files
+      const newNames = [];
       Array.from(files).forEach((file, index) => {
-        const newName = fileInputs[index].value.trim() + fileInputs[index].dataset.originalExtension;
+        const newName = buildFileName(fileInputs[index], file);
         const renamedFile = new File([file], newName, {type: file.type});
         formData.append('images', renamedFile);
-        formData.append('names[]', newName);
-        fileMap.set(file, newName);
+        newNames.push(newName);
       });
+
+      // Names go as a single field so repeated form fields are not collapsed
+      formData.append('names', JSON.stringify(newNames));
 
       try {
         const response = await fetch('/upload', {
@@ -164,6 +180,7 @@ designed as an internal network webapp -->
 
         if (result.success) {
           const successMsg = document.getElementById('successMessage');
+          successMsg.textContent = `Upload successful!${result.files.join(', ')}`;
           successMsg.style.display = 'block';
           setTimeout(() => {
             successMsg.style.display = 'none';
@@ -175,6 +192,9 @@ designed as an internal network webapp -->
 
           // Refresh the file list
           loadRecentFiles();
+        } else {
+          const rejected = (result.rejected || []).join(', ');
+          alert('Upload failed.' + (rejected ? ` Not saved: ${rejected}` : '') + (result.message ? ` ${result.message}` : ''));
         }
       } catch (error) {
         console.error('Upload failed:', error);
